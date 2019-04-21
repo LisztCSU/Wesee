@@ -1,0 +1,20 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /wesee
+spring:
+  datasource:
+    name: test
+    url: jdbc:mysql://localhost:3306/wesee?characterEncoding=UTF-8
+    username: root
+    password: fuck1234
+    driverClassName: com.mysql.jdbc.Driver
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+    session:
+      store-type: redis
+path:
+  filepath: E:/IDEA/android/wesee_server/src/main/java/com/liszt/wesee_server/python/movies.txt
+  filepath2: E:\IDEA\android\wesee_server\src\main\java\com\liszt\wesee_server\python\test.py
