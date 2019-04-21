@@ -4,33 +4,29 @@ import com.liszt.wesee_server.bean.Movie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 @Component
 @ConfigurationProperties(prefix = "path")
 public class FileToBean {
-    @Value("${path.filepath}")
      private static String filepath;
-
-    public String getFilepath() {
+    public static String getFilepath() {
         return filepath;
     }
-
-    public void setFilepath(String filepath) {
-        this.filepath = filepath;
+    @Value("${path.filepath}")
+    public  void setFilepath(String filepath) {
+        FileToBean.filepath = filepath;
     }
 
     public List<Movie> store() {
 
         FileReader file = null;
         try {
-            file = new FileReader(this.getFilepath());
+            file = new FileReader(filepath);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

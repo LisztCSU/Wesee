@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liszt.wesee_server.bean.Movie;
 import com.liszt.wesee_server.bean.ResultList;
 import com.liszt.wesee_server.python.FileToBean;
+import com.liszt.wesee_server.python.RunPython;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,8 +19,10 @@ import java.util.List;
 public class MovieController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-
+   @Autowired
+   private  FileToBean fileToBean;
+   @Autowired
+   private RunPython runPython;
     @RequestMapping("/crawlMovie")
     public String crawlMovie(String admin, String password) {
 
@@ -39,11 +42,11 @@ public class MovieController {
                 "`imgUrl` varchar(255)," +
                 "PRIMARY KEY (`id`)" + ")ENGINE=InnoDB DEFAULT CHARSET=utf8;";
         String deleteSql = "DROP TABLE  IF EXISTS `movie` ";
-//        RunPython.run();
-//        System.out.print("motherfucker");
+        runPython.run();
+        System.out.print("重新爬取");
         jdbcTemplate.execute(deleteSql);
         jdbcTemplate.execute(createSql);
-        for (Movie movie :new FileToBean().store()) {
+        for (Movie movie :fileToBean.store()) {
             addMovie(movie);
         }
         return "success";

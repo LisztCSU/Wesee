@@ -9,7 +9,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36",
     "Referer": "https://www.douban.com/"
 }
-douban_url = "https://movie.douban.com/cinema/nowplaying/"+sys.argv[0]+"/"
+douban_url = "https://movie.douban.com/cinema/nowplaying/changsha/"
 response = requests.get(douban_url, headers=headers)
 douban_text = response.text
 
@@ -41,7 +41,7 @@ for li in lis:
          post
     )
     movies.append(movie)
-with open('E:\\IDEA\\android\\wesee_server\\src\\main\\java\\com\\youxiang\\wesee_server\\python\\movies.txt', 'w+',encoding='utf-8') as fp:
+with open('E:\\IDEA\\android\\wesee_server\\src\\main\\java\\com\\liszt\\wesee_server\\python\\movies.txt', 'w+',encoding='utf-8') as fp:
     fp.write('\n'.join('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s' % x for x in movies))
 
   
