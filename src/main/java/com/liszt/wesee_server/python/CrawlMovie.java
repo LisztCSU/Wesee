@@ -73,7 +73,7 @@ public class CrawlMovie{
     }
     @Scheduled(fixedDelay = 1000*3600*24)
     private void configureTasks() {
-        if(crawlMovie().equals("success"))
+       // if(crawlMovie().equals("success"))
         System.err.println("更新电影列表成功");
     }
 }

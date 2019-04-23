@@ -33,7 +33,7 @@ public class LocationController {
            double longitude2 = Double.parseDouble(longitude);
            double latitude2 =  Double.parseDouble(latitude);
            if (locations !=null&&locations.size() > 0 ) {
-               int succeed = jdbcTemplate.update("UPDATE  user_location SET longitude=? AND latitude=?", new Object[]{longitude2, latitude2});
+               int succeed = jdbcTemplate.update("UPDATE  user_location SET longitude=? , latitude=? WHERE id=?", new Object[]{longitude2, latitude2,uid});
                if (succeed == 0) {
                    result.setCode(0);
                } else {

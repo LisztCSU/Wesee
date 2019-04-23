@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @RequestMapping("/register")
-    public String register(String username, String password, String confirmPassword, String vcode, HttpServletRequest request) throws JsonProcessingException {
+    public String register(String username, String password, String confirmPassword, String vcode, String recommendedAccept, HttpServletRequest request) throws JsonProcessingException {
         Result<User> result = new Result<>();
         String dbpassword = MD5encrypt.getMd5(AESencrypt.AESDncode(password, AESencrypt.ENCODERULES));
         result.setMsg(("success"));
@@ -74,6 +74,8 @@ public class UserController {
                         result.setCode(3);
                     } else {
                         result.setCode(4);
+                        users = jdbcTemplate.query("select * from user WHERE username=?", new Object[]{username}, new BeanPropertyRowMapper(User.class));
+                        jdbcTemplate.update("INSERT INTO setting VALUES (?,?,?,?)",new Object[]{users.get(0).getId(),recommendedAccept,"25","10"});
                     }
                 }
             }
@@ -88,7 +90,7 @@ public class UserController {
         Result<User> result = new Result<>();
         result.setMsg(("success"));
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
+       if (session != null && session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
             List<User> users = jdbcTemplate.query("select * from user WHERE id=?", new Object[]{uid}, new BeanPropertyRowMapper(User.class));
             //System.out.println("wsnd:"+uid);
             if (users != null && users.size() > 0) {

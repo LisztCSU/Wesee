@@ -15,7 +15,7 @@ public class User {
     public String getIsAuth(){return isAuth;}
 
     public String getMobile(){return mobile;}
-    public String getNickName() {
+    public String getNickname() {
         return nickname;
     }
 
@@ -37,7 +37,7 @@ public class User {
     public void setUsername(String username) {
         this.username = username;
     }
-    public void setNickName(String nickname) {
+    public void setNickname(String nickname) {
         this.nickname = nickname;
     }
     public  void setIsAuth(String isAuth){this.isAuth = isAuth; }
