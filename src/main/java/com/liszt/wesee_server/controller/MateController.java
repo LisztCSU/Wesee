@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/wantTosee")
-public class WantToseeController {
+@RequestMapping("/mate")
+public class MateController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    @RequestMapping("/add")
+    @RequestMapping("/wantTosee")
     public String add(String uid, String mid, HttpServletRequest request) throws JsonProcessingException {
         Result<Mate> result = new Result<>();
         HttpSession session = request.getSession(false);

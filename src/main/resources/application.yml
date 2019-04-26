@@ -13,7 +13,13 @@ spring:
     host: 127.0.0.1
     port: 6379
     password: 123456
+  mvc:
+    view:
+      prefix: /
+      suffix: .html
 path:
   filepath: E:\\IDEA\\android\\wesee_server\\src\\main\\java\\com\\liszt\\wesee_server\\python\\movies.txt
   filepath2: E:\\IDEA\\android\\wesee_server\\src\\main\\java\\com\\liszt\\wesee_server\\python\\test.py
   pythonpath: python
+thymeleaf:
+  cache: false
