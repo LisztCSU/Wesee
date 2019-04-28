@@ -23,3 +23,8 @@ path:
   pythonpath: python
 thymeleaf:
   cache: false
+push:
+  accessKeyId: LTAIPkp5kd1JP3WZ
+  acessKeySecret: 7vTDeD49MbLMOQgTZix3vGtBkOI00N
+  appKey: 26016167
+  regionId: cn-hangzhou

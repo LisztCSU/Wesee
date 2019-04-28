@@ -6,6 +6,7 @@ public class Nearby {
     private String latitude;
     private String username;
     private String nickname;
+    private String distance;
     public void setUid2(String uid2) {
         this.uid2 = uid2;
     }
@@ -46,4 +47,11 @@ public class Nearby {
         this.nickname = nickname;
     }
 
+    public void setDistance(String distance) {
+        this.distance = distance;
+    }
+
+    public String getDistance() {
+        return distance;
+    }
 }

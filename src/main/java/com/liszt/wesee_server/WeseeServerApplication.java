@@ -10,7 +10,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @SpringBootApplication
 @EnableScheduling
 @EnableRedisHttpSession
-@ComponentScan(basePackages = {"com.liszt.wesee_server.controller","com.liszt.wesee_server.python"})
+@ComponentScan(basePackages = {"com.liszt.wesee_server.controller","com.liszt.wesee_server.python","com.liszt.wesee_server.push"})
 public class WeseeServerApplication {
 
 	public static void main(String[] args) {

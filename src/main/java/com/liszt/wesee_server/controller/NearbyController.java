@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,8 +47,11 @@ public class NearbyController {
                     for(String id : ids) {
                     List<Nearby> list1 = jdbcTemplate.query("SELECT id AS uid2 ,longitude,latitude FROM user_location WHERE id=?", new Object[]{id}, new BeanPropertyRowMapper<>(Nearby.class));
                     if (list1 != null && list1.size() > 0) {
-                        if (getDistance(lat_a, lng_a, Double.parseDouble(list1.get(0).getLatitude()), Double.parseDouble(list1.get(0).getLongitude())) <= far) {
+                        double dis = getDistance(lat_a, lng_a, Double.parseDouble(list1.get(0).getLatitude()), Double.parseDouble(list1.get(0).getLongitude()));
+                        if (dis <= far) {
+                            list1.get(0).setDistance(new DecimalFormat("##0.0").format(dis)+"");
                             list.add(list1.get(0));
+
                         }
                       }
                     }
