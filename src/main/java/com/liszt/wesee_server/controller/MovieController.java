@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liszt.wesee_server.bean.Movie;
 import com.liszt.wesee_server.bean.ResultList;
+import com.liszt.wesee_server.push.pushByaccount;
 import com.liszt.wesee_server.python.FileToBean;
 import com.liszt.wesee_server.python.RunPython;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ public class MovieController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-
     @RequestMapping("/getMovieList")
     public ResultList  getMovieList()throws JsonProcessingException {
         ResultList<Movie> result = new ResultList<>();
@@ -40,6 +40,7 @@ public class MovieController {
                  movie.setWantcount("0");
              }
          }
+
             result.setDataList(movies);
         } else {
             result.setCode(0);

@@ -6,7 +6,11 @@ public class Appointment {
     private String uid2;
     private String mid;
     private String invited;
-    private String accepted;
+    private String agreed;
+    private String inviteDate;
+    private String agreeDate;
+
+
 
     public String getId() {
         return id;
@@ -29,6 +33,7 @@ public class Appointment {
     }
 
     public void setMid(String mid) {
+        this.mid = mid;
 
     }
 
@@ -36,16 +41,13 @@ public class Appointment {
         return mid;
     }
 
-    public String getAccepted() {
-        return accepted;
-    }
 
     public String getInvited() {
         return invited;
     }
 
-    public void setAccepted(String accepted) {
-        this.accepted = accepted;
+    public void setAgreed(String agreed) {
+        this.agreed = agreed;
     }
 
     public void setInvited(String invited) {
@@ -55,5 +57,26 @@ public class Appointment {
     public void setUid2(String uid2) {
         this.uid2 = uid2;
     }
+
+    public String getAgreed() {
+        return agreed;
+    }
+
+    public String getAgreeDate() {
+        return agreeDate;
+    }
+
+    public String getInviteDate() {
+        return inviteDate;
+    }
+
+    public void setAgreeDate(String agreeDate) {
+        this.agreeDate = agreeDate;
+    }
+
+    public void setInviteDate(String inviteDate) {
+        this.inviteDate = inviteDate;
+    }
+
 
 }

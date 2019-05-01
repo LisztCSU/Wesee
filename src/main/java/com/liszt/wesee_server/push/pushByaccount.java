@@ -1,12 +1,11 @@
 package com.liszt.wesee_server.push;
 
 import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.http.MethodType;
-import com.aliyuncs.http.ProtocolType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
-import com.aliyuncs.push.model.v20160801.PushNoticeToAndroidRequest;
-import com.aliyuncs.push.model.v20160801.PushNoticeToAndroidResponse;
+
+import com.aliyuncs.push.model.v20160801.PushRequest;
+import com.aliyuncs.push.model.v20160801.PushResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -17,11 +16,11 @@ public class pushByaccount {
     private static String accessKeyId;
     private  static String accessKeySecret;
     private static long appKey;
-    private static String region;
+    private static String regionId;
     private  static DefaultAcsClient client;
 
     public static String getRegion() {
-        return region;
+        return regionId;
     }
 
     public static String getAccessKeyId() {
@@ -49,27 +48,33 @@ public class pushByaccount {
     }
     @Value("${push.regionId}")
     public void setRegion(String regionId){
-        this.region =regionId;
+        this.regionId =regionId;
     }
 
 
     public void push(String account, String body) throws Exception {
-        IClientProfile profile = DefaultProfile.getProfile(region, accessKeyId, accessKeySecret);
+        IClientProfile profile = DefaultProfile.getProfile(regionId, accessKeyId, accessKeySecret);
         client = new DefaultAcsClient(profile);
-        PushNoticeToAndroidRequest androidRequest = new PushNoticeToAndroidRequest();
-        //安全性比较高的内容建议使用HTTPS
-        androidRequest.setProtocol(ProtocolType.HTTPS);
-        //内容较大的请求，使用POST请求
-        androidRequest.setMethod(MethodType.POST);
-        androidRequest.setAppKey(appKey);
-        androidRequest.setTarget("ACCOUNT");
-        androidRequest.setTargetValue(account);
-        androidRequest.setTitle("尊敬的用户");
-        androidRequest.setBody(body);
-        androidRequest.setExtParameters("{\"k1\":\"v1\"}");
-        PushNoticeToAndroidResponse pushNoticeToAndroidResponse = client.getAcsResponse(androidRequest);
-        System.out.printf("RequestId: %s, MessageId: %s\n",
-                pushNoticeToAndroidResponse.getRequestId(), pushNoticeToAndroidResponse.getMessageId());
+//
+        PushRequest pushRequest = new PushRequest();
+        // 推送目标
+        pushRequest.setAppKey(appKey);
+        pushRequest.setTarget("ACCOUNT"); //推送目标: device:推送给设备; account:推送给指定帐号,tag:推送给自定义标签; all: 推送给全部
+        pushRequest.setTargetValue(account);
+        pushRequest.setPushType("NOTICE"); // 消息类型 MESSAGE NOTICE
+        pushRequest.setDeviceType("ANDROID"); // 设备类型 ANDROID iOS ALL.
+        // 推送配置
+        pushRequest.setTitle("新的邀请"); // 消息的标题
+        pushRequest.setBody(body); // 消息的内容
+        // 推送配置: Android
+        pushRequest.setAndroidNotifyType("BOTH");//通知的提醒方式 "VIBRATE" : 震动 "SOUND" : 声音 "BOTH" : 声音和震动 NONE : 静音
+        pushRequest.setAndroidOpenType("APPLICATION"); //点击通知后动作 "APPLICATION" : 打开应用 "ACTIVITY" : 打开AndroidActivity "URL" : 打开URL "NONE" : 无跳转
+        // 指定notificaitonchannel id
+        pushRequest.setAndroidNotificationChannel("1");
+
+        PushResponse pushResponse = client.getAcsResponse(pushRequest);
+        System.out.printf("RequestId: %s, MessageID: %s\n",
+                pushResponse.getRequestId(), pushResponse.getMessageId());
 
     }
 
