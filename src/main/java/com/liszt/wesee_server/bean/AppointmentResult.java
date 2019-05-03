@@ -5,11 +5,13 @@ public class AppointmentResult {
     private String objectname;
     private String moviename;
     private String time;
-    public AppointmentResult(String id,String objectname,String moviename,String time){
+    private String initiative;
+    public AppointmentResult(String id,String objectname,String moviename,String time,String initiative){
         this.id = id;
         this.objectname = objectname;
         this.moviename = moviename;
         this.time = time;
+        this.initiative = initiative;
     }
 
     public void setMoviename(String moviename) {
@@ -42,5 +44,13 @@ public class AppointmentResult {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getInitiative() {
+        return initiative;
+    }
+
+    public void setInitiative(String initiative) {
+        this.initiative = initiative;
     }
 }

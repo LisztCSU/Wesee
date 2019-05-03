@@ -33,22 +33,26 @@ public class AppointmentController {
         Result<Appointment> result = new Result<>();
         HttpSession session = request.getSession(false);
         if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
-            List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND uid2=? AND mid=?",new Object[]{uid,uid2,mid}, new BeanPropertyRowMapper<>(Appointment.class));
-            if(appointments!=null&&appointments.size()>0){
-                result.setCode(0);
+            List<Appointment> appointments2 = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND uid2=? AND mid=?",new Object[]{uid2,uid,mid}, new BeanPropertyRowMapper<>(Appointment.class));
+            if(appointments2!=null&&appointments2.size()>0){
+                result.setCode(2);
             }
             else {
-                String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-                int succeed = jdbcTemplate.update("INSERT appointment VALUES (?,?,?,?,?,?,now(),?)",new Object[]{uuid,uid,uid2,mid,"1","0","0"});
-                if(succeed==1){
-                 List<String> nickname = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,uid);
-                    try {
-                        push.push(uid2,"收到来自"+nickname.get(0)+"的邀请！");
+                List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND uid2=? AND mid=?", new Object[]{uid, uid2, mid}, new BeanPropertyRowMapper<>(Appointment.class));
+                if (appointments != null && appointments.size() > 0) {
+                    result.setCode(0);
+                } else {
+                    String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+                    int succeed = jdbcTemplate.update("INSERT appointment VALUES (?,?,?,?,?,?,now(),?)", new Object[]{uuid, uid, uid2, mid, "1", "0", "0"});
+                    if (succeed == 1) {
+                        List<String> nickname = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, uid);
+                        try {
+                            push.push(uid2, "新的邀请", "收到来自" + nickname.get(0) + "的邀请！");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        result.setCode(1);
                     }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    result.setCode(1);
                 }
             }
         } else {
@@ -74,23 +78,35 @@ public class AppointmentController {
     public ResultList getAppointmentList(String uid){
         ResultList<AppointmentResult> resultList = new ResultList<>();
         resultList.setMsg("success");
-        List<AppointmentResult> list = new ArrayList<>();
-        List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE (uid=? OR uid2=?) AND agreed=?",new Object[]{uid,uid,1},new BeanPropertyRowMapper<>(Appointment.class));
-        if(appointments!=null&appointments.size()>0){
-            resultList.setCode(1);
-            for (Appointment appointment:appointments){
-                List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,appointment.getUid());
-                List<String> usernames =jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?",String.class,appointment.getUid());
-                List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,appointment.getUid2());
-                List<String> usernames2 =jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?",String.class,appointment.getUid2());
-                List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?",String.class,appointment.getMid());
-                list.add(new AppointmentResult(appointment.getId(),nicknames.get(0)+"@"+usernames.get(0)+"\n"+nicknames2.get(0)+"@"+usernames2.get(0),movienames.get(0),appointment.getAgreeDate()));
-            }
-            resultList.setDataList(list);
-        }
-        else {
             resultList.setCode(0);
+        List<AppointmentResult> list = new ArrayList<>();
+        List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND agreed=?",new Object[]{uid,1},new BeanPropertyRowMapper<>(Appointment.class));
+        List<Appointment> appointments2 = jdbcTemplate.query("SELECT * FROM appointment WHERE uid2=? AND agreed=?",new Object[]{uid,1},new BeanPropertyRowMapper<>(Appointment.class));
+        if(appointments!=null&&appointments.size()>0) {
+            resultList.setCode(1);
+            for (Appointment appointment : appointments) {
+                List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid());
+                List<String> usernames = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid());
+                List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
+                List<String> usernames2 = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid2());
+                List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                list.add(new AppointmentResult(appointment.getId(), nicknames.get(0) + "@" + usernames.get(0)+"&&"+nicknames2.get(0) + "@" + usernames2.get(0), movienames.get(0), appointment.getAgreeDate(), "1"));
+            }
         }
+            if(appointments2!=null&&appointments2.size()>0){
+                resultList.setCode(1);
+                for (Appointment appointment:appointments2){
+                    List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,appointment.getUid());
+                    List<String> usernames =jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?",String.class,appointment.getUid());
+                    List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
+                    List<String> usernames2 = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid2());
+
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?",String.class,appointment.getMid());
+                    list.add(new AppointmentResult(appointment.getId(),nicknames.get(0)+"@"+usernames.get(0)+"&&"+nicknames2.get(0) + "@" + usernames2.get(0),movienames.get(0),appointment.getAgreeDate(),"0"));
+                }
+                resultList.setDataList(list);
+        }
+
         return resultList;
     }
     @RequestMapping("/getInviteList")
@@ -105,7 +121,7 @@ public class AppointmentController {
                 List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,appointment.getUid2());
                 List<String> usernames2 =jdbcTemplate.queryForList("SELECT username name FROM user WHERE id=?",String.class,appointment.getUid2());
                 List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?",String.class,appointment.getMid());
-                list.add(new AppointmentResult(appointment.getId(),nicknames2.get(0)+"@"+usernames2.get(0).replaceAll("(\\d{3})", "$1∗∗∗"),movienames.get(0),getTime(appointment.getInviteDate())));
+                list.add(new AppointmentResult(appointment.getId(),nicknames2.get(0)+"@"+usernames2.get(0).replaceAll("(\\d{3})", "$1∗∗∗"),movienames.get(0),getTime(appointment.getInviteDate()),"1"));
             }
             resultList.setDataList(list);
         }
@@ -126,7 +142,7 @@ public class AppointmentController {
                 List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,appointment.getUid());
                 List<String> usernames =jdbcTemplate.queryForList("SELECT username name FROM user WHERE id=?",String.class,appointment.getUid());
                 List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?",String.class,appointment.getMid());
-                list.add(new AppointmentResult(appointment.getId(),nicknames.get(0)+"@"+usernames.get(0),movienames.get(0),getTime(appointment.getInviteDate())));
+                list.add(new AppointmentResult(appointment.getId(),nicknames.get(0)+"@"+usernames.get(0),movienames.get(0),getTime(appointment.getInviteDate()),"0"));
             }
             resultList.setDataList(list);
         }
@@ -152,7 +168,7 @@ public class AppointmentController {
 
                     List<String> nickname = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class,uid2.get(0));
                     try {
-                        push.push(send, "你邀请的用户" + nickname.get(0) + "已接受邀请");
+                        push.push(send, "邀请成功","你邀请的用户" + nickname.get(0) + "已接受邀请");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

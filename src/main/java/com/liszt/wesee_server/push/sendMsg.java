@@ -1,5 +1,6 @@
 package com.liszt.wesee_server.push;
 
+
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "push")
-public class pushByaccount {
+public class sendMsg {
     private static String accessKeyId;
     private  static String accessKeySecret;
     private static long appKey;
@@ -52,7 +53,7 @@ public class pushByaccount {
     }
 
 
-    public void push(String account,String title, String body) throws Exception {
+    public void send(String account,String title, String body) throws Exception {
         IClientProfile profile = DefaultProfile.getProfile(regionId, accessKeyId, accessKeySecret);
         client = new DefaultAcsClient(profile);
 //
@@ -61,16 +62,12 @@ public class pushByaccount {
         pushRequest.setAppKey(appKey);
         pushRequest.setTarget("ACCOUNT"); //推送目标: device:推送给设备; account:推送给指定帐号,tag:推送给自定义标签; all: 推送给全部
         pushRequest.setTargetValue(account);
-        pushRequest.setPushType("NOTICE"); // 消息类型 MESSAGE NOTICE
+        pushRequest.setPushType("MESSAGE"); // 消息类型 MESSAGE NOTICE
         pushRequest.setDeviceType("ANDROID"); // 设备类型 ANDROID iOS ALL.
         // 推送配置
-        pushRequest.setTitle("title"); // 消息的标题
+        pushRequest.setTitle(title); // 消息的标题
         pushRequest.setBody(body); // 消息的内容
         // 推送配置: Android
-        pushRequest.setAndroidNotifyType("BOTH");//通知的提醒方式 "VIBRATE" : 震动 "SOUND" : 声音 "BOTH" : 声音和震动 NONE : 静音
-        pushRequest.setAndroidOpenType("NONE"); //点击通知后动作 "APPLICATION" : 打开应用 "ACTIVITY" : 打开AndroidActivity "URL" : 打开URL "NONE" : 无跳转
-        // 指定notificaitonchannel id
-        pushRequest.setAndroidNotificationChannel("1");
 
         PushResponse pushResponse = client.getAcsResponse(pushRequest);
         System.out.printf("RequestId: %s, MessageID: %s\n",
@@ -80,3 +77,4 @@ public class pushByaccount {
 
 
 }
+
