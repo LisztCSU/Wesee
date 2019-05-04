@@ -6,6 +6,7 @@ import com.liszt.wesee_server.bean.Result;
 import com.liszt.wesee_server.bean.User;
 import com.liszt.wesee_server.datahelper.AESencrypt;
 import com.liszt.wesee_server.datahelper.MD5encrypt;
+import com.liszt.wesee_server.datahelper.SensitiveWord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -200,14 +201,17 @@ public class UserController {
         result.setMsg("success");
         HttpSession session = request.getSession(false);
         if(session != null && session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)){
-                int succeed = jdbcTemplate.update("UPDATE user SET nickname=? WHERE id=?", new Object[]{nickname,uid});
-                if(succeed == 0){
+            if(new SensitiveWord().check(nickname)) {
+                int succeed = jdbcTemplate.update("UPDATE user SET nickname=? WHERE id=?", new Object[]{nickname, uid});
+                if (succeed == 0) {
                     result.setCode(0);
-                }
-                else {
+                } else {
                     result.setCode(1);
                 }
-
+            }
+            else {
+                result.setCode(-2);
+            }
         }
         else {
             result.setCode(-1);

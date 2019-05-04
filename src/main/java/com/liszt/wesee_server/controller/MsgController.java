@@ -3,6 +3,7 @@ package com.liszt.wesee_server.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liszt.wesee_server.bean.Result;
+import com.liszt.wesee_server.datahelper.SensitiveWord;
 import com.liszt.wesee_server.push.sendMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,8 +25,8 @@ public class MsgController {
         Result<String> result = new Result();
         result.setMsg("success");
         result.setCode(0);
-        List<String> objectId = jdbcTemplate.queryForList("SELECT uid FROM appointment WHERE id=?", String.class, id);
-        List<String> objectId2 = jdbcTemplate.queryForList("SELECT uid2 FROM appointment WHERE id=?", String.class, id);
+        List<String> objectId = jdbcTemplate.queryForList("SELECT uid FROM appointment WHERE id=? AND agreed=?", String.class, id,"1");
+        List<String> objectId2 = jdbcTemplate.queryForList("SELECT uid2 FROM appointment WHERE id=? AND agreed=?", String.class, id,"1");
 
 
         if (uid.equals(objectId.get(0))) {
@@ -33,7 +34,7 @@ public class MsgController {
             List<String> usernames =jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?",String.class,uid);
 
             try {
-                send.send(objectId2.get(0),nicknames.get(0)+"@"+usernames.get(0)+"&&"+id+"&&"+time, msg);
+                send.send(objectId2.get(0),nicknames.get(0)+"@"+usernames.get(0)+"&&"+id+"&&"+time, new SensitiveWord().replace(msg));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -42,7 +43,7 @@ public class MsgController {
             List<String> usernames =jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?",String.class,objectId2.get(0));
 
             try {
-                send.send(objectId.get(0),nicknames.get(0)+"@"+usernames.get(0)+"&&"+id+"&&"+time, msg);
+                send.send(objectId.get(0),nicknames.get(0)+"@"+usernames.get(0)+"&&"+id+"&&"+time, new SensitiveWord().replace(msg));
             } catch (Exception e) {
                 e.printStackTrace();
             }
