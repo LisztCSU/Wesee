@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import javax.servlet.http.HttpSession;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,8 +40,13 @@ public class UserController {
         if (users != null && users.size() > 0) {
             result.setCode(1);
             User user = users.get(0);
-            user.setIsAuth("1");
-            jdbcTemplate.update("UPDATE  user SET isAuth=? WHERE id = ?", new Object[]{"1", user.getId(),});
+            String token = MD5encrypt.get32Md5(String.format(user.getId().substring(8, 24) + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+            int succeed = jdbcTemplate.update("UPDATE user SET token=? WHERE id=?",new Object[]{token,user.getId()});
+            if(succeed==1){
+                user.setToken(token);
+            }
+            user.setMobile("***");
+            user.setPassword("***");
             result.setData(user);
             HttpSession session = request.getSession(true);
             session.setAttribute("uid", user.getId());
@@ -49,6 +56,38 @@ public class UserController {
         }
         return new ObjectMapper().writeValueAsString(result);
     }
+
+    @RequestMapping("/autoLogin")
+    public String autoLogin(String uid,String token,HttpServletRequest request) throws JsonProcessingException {
+        Result<User> result = new Result<>();
+        result.setMsg("success");
+        HttpSession session = request.getSession(false);
+        if(session != null&&session.getAttribute("uid")!=null &&session.getAttribute("uid").equals(uid)){
+            result.setCode(0);
+        }
+        else {
+            List<User> users = jdbcTemplate.query("SELECT * FROM user WHERE id=? AND token=?",new Object[]{uid,token},new BeanPropertyRowMapper<>(User.class));
+            if (users!=null&&users.size()>0){
+                User user = users.get(0);
+                String newtoken = MD5encrypt.get32Md5(String.format(user.getId().substring(8, 24) + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+                int succeed = jdbcTemplate.update("UPDATE user SET token=? WHERE id=?",new Object[]{newtoken,user.getId()});
+                if(succeed==1){
+                    user.setToken(newtoken);
+                }
+                user.setMobile("***");
+                user.setPassword("***");
+                result.setData(user);
+                HttpSession newsession = request.getSession(true);
+                newsession.setAttribute("uid", user.getId());
+                newsession.setMaxInactiveInterval(24 * 3600);
+            }
+            else {
+                result.setCode(-1);
+            }
+        }
+        return new ObjectMapper().writeValueAsString(result);
+    }
+
 
     @RequestMapping("/register")
     public String register(String username, String password, String confirmPassword, String vcode, String recommendedAccept, HttpServletRequest request) throws JsonProcessingException {
@@ -70,7 +109,7 @@ public class UserController {
                     result.setCode(2);
                 } else {
                     String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-                    int successed = jdbcTemplate.update("INSERT INTO user VALUES(?, ?, ?, ?, ?, now(), ?)", new Object[]{uuid, username, "新用户", mobile_server, dbpassword, "0"});
+                    int successed = jdbcTemplate.update("INSERT INTO user VALUES(?, ?, ?, ?, ?, now(), ?, ?)", new Object[]{uuid, username, "新用户", mobile_server, dbpassword, "0","0"});
                     if (successed == 0) {
                         result.setCode(3);
                     } else {
@@ -98,6 +137,9 @@ public class UserController {
                 result.setCode(1);
                 User user = users.get(0);
                 user.setMobile(user.getMobile().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1∗∗∗∗$2"));
+                user.setId("***");
+                user.setPassword("***");
+                user.setToken("***");
                 result.setData(user);
             } else {
                 result.setCode(0);
@@ -120,7 +162,7 @@ public class UserController {
         result.setMsg(("success"));
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
-            int succeed = jdbcTemplate.update("UPDATE user SET isAuth=? WHERE id=?", new Object[]{"0", uid,});
+            int succeed = jdbcTemplate.update("UPDATE user SET token=? WHERE id=?", new Object[]{"0", uid,});
             if (succeed == 0) {
                 result.setCode(0);
             } else {
