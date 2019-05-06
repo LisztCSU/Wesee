@@ -62,103 +62,123 @@ public class AppointmentController {
 
     }
     @RequestMapping("/cancel")
-    public String invite(String id, HttpServletRequest request)throws JsonProcessingException {
+    public String invite(String uid,String id, HttpServletRequest request)throws JsonProcessingException {
         Result<String> result = new Result<>();
         result.setMsg("success");
-        int succeed = jdbcTemplate.update("DELETE FROM appointment WHERE id=?",new Object[]{id});
-        if(succeed == 1){
-            result.setCode(1);
+        HttpSession session = request.getSession(false);
+        if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
+            int succeed = jdbcTemplate.update("DELETE FROM appointment WHERE id=?", new Object[]{id});
+            if (succeed == 1) {
+                result.setCode(1);
+            } else result.setCode(0);
         }
-        else result.setCode(0);
+        else {
+            result.setCode(-1);
+        }
 
         return new ObjectMapper().writeValueAsString(result);
 
     }
     @RequestMapping("/getAppointmentList")
-    public ResultList getAppointmentList(String uid){
+    public ResultList getAppointmentList(String uid,HttpServletRequest request){
         ResultList<AppointmentResult> resultList = new ResultList<>();
         resultList.setMsg("success");
+        HttpSession session = request.getSession(false);
+        if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
             resultList.setCode(0);
-        List<AppointmentResult> list = new ArrayList<>();
-        List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND agreed=?",new Object[]{uid,1},new BeanPropertyRowMapper<>(Appointment.class));
-        List<Appointment> appointments2 = jdbcTemplate.query("SELECT * FROM appointment WHERE uid2=? AND agreed=?",new Object[]{uid,1},new BeanPropertyRowMapper<>(Appointment.class));
-        if(appointments!=null&&appointments.size()>0) {
-            resultList.setCode(1);
-            for (Appointment appointment : appointments) {
-                List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid());
-                List<String> usernames = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid());
-                List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
-                List<String> usernames2 = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid2());
-                List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
-                list.add(new AppointmentResult(appointment.getId(), nicknames.get(0) + "@" + usernames.get(0)+"&&"+nicknames2.get(0) + "@" + usernames2.get(0), movienames.get(0), appointment.getAgreeDate(), "1"));
-            }
-        }
-            if(appointments2!=null&&appointments2.size()>0){
+            List<AppointmentResult> list = new ArrayList<>();
+            List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND agreed=?", new Object[]{uid, 1}, new BeanPropertyRowMapper<>(Appointment.class));
+            List<Appointment> appointments2 = jdbcTemplate.query("SELECT * FROM appointment WHERE uid2=? AND agreed=?", new Object[]{uid, 1}, new BeanPropertyRowMapper<>(Appointment.class));
+            if (appointments != null && appointments.size() > 0) {
                 resultList.setCode(1);
-                for (Appointment appointment:appointments2){
-                    List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,appointment.getUid());
-                    List<String> usernames =jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?",String.class,appointment.getUid());
+                for (Appointment appointment : appointments) {
+                    List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid());
+                    List<String> usernames = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid());
+                    List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
+                    List<String> usernames2 = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid2());
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                    list.add(new AppointmentResult(appointment.getId(), nicknames.get(0) + "@" + usernames.get(0) + "&&" + nicknames2.get(0) + "@" + usernames2.get(0), movienames.get(0), appointment.getAgreeDate(), "1"));
+                }
+            }
+            if (appointments2 != null && appointments2.size() > 0) {
+                resultList.setCode(1);
+                for (Appointment appointment : appointments2) {
+                    List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid());
+                    List<String> usernames = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid());
                     List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
                     List<String> usernames2 = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid2());
 
-                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?",String.class,appointment.getMid());
-                    list.add(new AppointmentResult(appointment.getId(),nicknames.get(0)+"@"+usernames.get(0)+"&&"+nicknames2.get(0) + "@" + usernames2.get(0),movienames.get(0),appointment.getAgreeDate(),"0"));
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                    list.add(new AppointmentResult(appointment.getId(), nicknames.get(0) + "@" + usernames.get(0) + "&&" + nicknames2.get(0) + "@" + usernames2.get(0), movienames.get(0), appointment.getAgreeDate(), "0"));
                 }
                 resultList.setDataList(list);
+            }
+        }
+        else {
+            resultList.setCode(-1);
         }
 
         return resultList;
     }
     @RequestMapping("/getInviteList")
-    public ResultList getInviteList(String uid){
+    public ResultList getInviteList(String uid,HttpServletRequest request){
+
         ResultList<AppointmentResult> resultList = new ResultList<>();
         List<AppointmentResult> list = new ArrayList<>();
         resultList.setMsg("success");
-        List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND agreed<>?",new Object[]{uid,"1"},new BeanPropertyRowMapper<>(Appointment.class));
-        if(appointments!=null&appointments.size()>0){
-            resultList.setCode(1);
-            for (Appointment appointment:appointments){
-                List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,appointment.getUid2());
-                List<String> usernames2 =jdbcTemplate.queryForList("SELECT username name FROM user WHERE id=?",String.class,appointment.getUid2());
-                List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?",String.class,appointment.getMid());
-                list.add(new AppointmentResult(appointment.getId(),nicknames2.get(0)+"@"+usernames2.get(0).replaceAll("(\\d{3})", "$1∗∗∗"),movienames.get(0),getTime(appointment.getInviteDate()),"1"));
+        HttpSession session = request.getSession(false);
+        if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
+            List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND agreed<>?", new Object[]{uid, "1"}, new BeanPropertyRowMapper<>(Appointment.class));
+            if (appointments != null & appointments.size() > 0) {
+                resultList.setCode(1);
+                for (Appointment appointment : appointments) {
+                    List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
+                    List<String> usernames2 = jdbcTemplate.queryForList("SELECT username name FROM user WHERE id=?", String.class, appointment.getUid2());
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                    list.add(new AppointmentResult(appointment.getId(), nicknames2.get(0) + "@" + usernames2.get(0).replaceAll("(\\d{3})", "$1∗∗∗"), movienames.get(0), getTime(appointment.getInviteDate()), "1"));
+                }
+                resultList.setDataList(list);
+            } else {
+                resultList.setCode(0);
             }
-            resultList.setDataList(list);
         }
         else {
-            resultList.setCode(0);
+            resultList.setCode(-1);
         }
         return resultList;
     }
     @RequestMapping("/getReceiveList")
-    public ResultList getReceiveList(String uid){
+    public ResultList getReceiveList(String uid,HttpServletRequest request){
         ResultList<AppointmentResult> resultList = new ResultList<>();
         List<AppointmentResult> list = new ArrayList<>();
         resultList.setMsg("success");
-        List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid2=? AND agreed=?",new Object[]{uid,"0"},new BeanPropertyRowMapper<>(Appointment.class));
-        if(appointments!=null&appointments.size()>0){
-            resultList.setCode(1);
-            for (Appointment appointment:appointments){
-                List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,appointment.getUid());
-                List<String> usernames =jdbcTemplate.queryForList("SELECT username name FROM user WHERE id=?",String.class,appointment.getUid());
-                List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?",String.class,appointment.getMid());
-                list.add(new AppointmentResult(appointment.getId(),nicknames.get(0)+"@"+usernames.get(0),movienames.get(0),getTime(appointment.getInviteDate()),"0"));
+        HttpSession session = request.getSession(false);
+        if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
+            List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid2=? AND agreed=?", new Object[]{uid, "0"}, new BeanPropertyRowMapper<>(Appointment.class));
+            if (appointments != null & appointments.size() > 0) {
+                resultList.setCode(1);
+                for (Appointment appointment : appointments) {
+                    List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid());
+                    List<String> usernames = jdbcTemplate.queryForList("SELECT username name FROM user WHERE id=?", String.class, appointment.getUid());
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                    list.add(new AppointmentResult(appointment.getId(), nicknames.get(0) + "@" + usernames.get(0), movienames.get(0), getTime(appointment.getInviteDate()), "0"));
+                }
+                resultList.setDataList(list);
+            } else {
+                resultList.setCode(0);
             }
-            resultList.setDataList(list);
         }
-        else {
-            resultList.setCode(0);
-        }
+        resultList.setCode(-1);
         return resultList;
     }
 
 
 
     @RequestMapping("/accept")
-    public String accept( String id, HttpServletRequest request)throws JsonProcessingException {
+    public String accept( String uid, String id, HttpServletRequest request)throws JsonProcessingException {
         Result<Appointment> result = new Result<>();
-//        HttpSession session = request.getSession(false);
-//        if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
+        HttpSession session = request.getSession(false);
+        if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
             int succeed = jdbcTemplate.update("UPDATE appointment SET agreed=?,agreedate=now() WHERE id=?",new Object[]{"1",id});
             if (succeed == 1) {
                    result.setCode(1);
@@ -173,16 +193,16 @@ public class AppointmentController {
                         e.printStackTrace();
                     }
                 }
-//            } else {
-//                result.setCode(-1);
-//            }
+            } else {
+                result.setCode(-1);
+            }
         return new ObjectMapper().writeValueAsString(result);
     }
     @RequestMapping("/reject")
-    public String reject( String id, HttpServletRequest request)throws JsonProcessingException {
+    public String reject( String uid,String id, HttpServletRequest request)throws JsonProcessingException {
         Result<Appointment> result = new Result<>();
-//        HttpSession session = request.getSession(false);
-//        if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
+        HttpSession session = request.getSession(false);
+        if (session != null & session.getAttribute("uid") != null && session.getAttribute("uid").equals(uid)) {
             int succeed = jdbcTemplate.update("UPDATE appointment SET agreed=? WHERE id=?",new Object[]{"-1",id});
             if (succeed == 1) {
                 result.setCode(1);
@@ -190,10 +210,10 @@ public class AppointmentController {
             } else {
                 result.setCode(0);
             }
-//        }
-//        else {
-//            result.setCode(-1);
-//        }
+        }
+        else {
+            result.setCode(-1);
+        }
         return new ObjectMapper().writeValueAsString(result);
     }
     private String getTime(String date){

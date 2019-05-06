@@ -64,11 +64,11 @@ public class pushByaccount {
         pushRequest.setPushType("NOTICE"); // 消息类型 MESSAGE NOTICE
         pushRequest.setDeviceType("ANDROID"); // 设备类型 ANDROID iOS ALL.
         // 推送配置
-        pushRequest.setTitle("title"); // 消息的标题
+        pushRequest.setTitle(title); // 消息的标题
         pushRequest.setBody(body); // 消息的内容
         // 推送配置: Android
         pushRequest.setAndroidNotifyType("BOTH");//通知的提醒方式 "VIBRATE" : 震动 "SOUND" : 声音 "BOTH" : 声音和震动 NONE : 静音
-        pushRequest.setAndroidOpenType("NONE"); //点击通知后动作 "APPLICATION" : 打开应用 "ACTIVITY" : 打开AndroidActivity "URL" : 打开URL "NONE" : 无跳转
+        pushRequest.setAndroidOpenType("APPLICATION"); //点击通知后动作 "APPLICATION" : 打开应用 "ACTIVITY" : 打开AndroidActivity "URL" : 打开URL "NONE" : 无跳转
         // 指定notificaitonchannel id
         pushRequest.setAndroidNotificationChannel("1");
 
