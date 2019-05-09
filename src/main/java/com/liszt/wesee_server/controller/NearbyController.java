@@ -38,9 +38,11 @@ public class NearbyController {
                     }
                 }
                 List<String> fars = jdbcTemplate.queryForList("SELECT far FROM setting WHERE id=?", String.class, uid);
+                List<String> maxs = jdbcTemplate.queryForList("SELECT max FROM setting WHERE id=?", String.class, uid);
                 List<String> lats = jdbcTemplate.queryForList("SELECT latitude FROM user_location WHERE id=?", String.class, uid);
                 List<String> lngs = jdbcTemplate.queryForList("SELECT longitude FROM user_location WHERE id=?", String.class, uid);
                 int far = Integer.parseInt(fars.get(0));
+                int max = Integer.parseInt(maxs.get(0));
                 double lat_a = Double.parseDouble(lats.get(0));
                 double lng_a = Double.parseDouble(lngs.get(0));
                 List<Nearby> list = new ArrayList<>();
@@ -61,6 +63,9 @@ public class NearbyController {
                     List<String> nicknames= jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?",String.class,nearby.getUid2());
                     nearby.setUsername(usernames.get(0).replaceAll("(\\d{3})", "$1∗∗∗"));
                     nearby.setNickname(nicknames.get(0));
+                }
+                if(list.size()>max){
+                        list = list.subList(0,max);
                 }
                 result.setDataList(list);
                 result.setCode(1);
