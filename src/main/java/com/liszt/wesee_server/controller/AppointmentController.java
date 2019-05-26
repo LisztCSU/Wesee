@@ -90,27 +90,30 @@ public class AppointmentController {
             List<Appointment> appointments = jdbcTemplate.query("SELECT * FROM appointment WHERE uid=? AND agreed=?", new Object[]{uid, 1}, new BeanPropertyRowMapper<>(Appointment.class));
             List<Appointment> appointments2 = jdbcTemplate.query("SELECT * FROM appointment WHERE uid2=? AND agreed=?", new Object[]{uid, 1}, new BeanPropertyRowMapper<>(Appointment.class));
             if (appointments != null && appointments.size() > 0) {
-                resultList.setCode(1);
+
                 for (Appointment appointment : appointments) {
                     List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid());
                     List<String> usernames = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid());
                     List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
                     List<String> usernames2 = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid2());
-                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie_all WHERE id=?", String.class, appointment.getMid());
                     list.add(new AppointmentResult(appointment.getId(), nicknames.get(0) + "@" + usernames.get(0) + "&&" + nicknames2.get(0) + "@" + usernames2.get(0), movienames.get(0), appointment.getAgreeDate(), "1"));
                 }
             }
             if (appointments2 != null && appointments2.size() > 0) {
-                resultList.setCode(1);
+
                 for (Appointment appointment : appointments2) {
                     List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid());
                     List<String> usernames = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid());
                     List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
                     List<String> usernames2 = jdbcTemplate.queryForList("SELECT  username FROM user WHERE id=?", String.class, appointment.getUid2());
 
-                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie_all WHERE id=?", String.class, appointment.getMid());
                     list.add(new AppointmentResult(appointment.getId(), nicknames.get(0) + "@" + usernames.get(0) + "&&" + nicknames2.get(0) + "@" + usernames2.get(0), movienames.get(0), appointment.getAgreeDate(), "0"));
                 }
+            }
+            if(list.size()>0) {
+                resultList.setCode(1);
                 resultList.setDataList(list);
             }
         }
@@ -134,7 +137,7 @@ public class AppointmentController {
                 for (Appointment appointment : appointments) {
                     List<String> nicknames2 = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid2());
                     List<String> usernames2 = jdbcTemplate.queryForList("SELECT username name FROM user WHERE id=?", String.class, appointment.getUid2());
-                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie_all WHERE id=?", String.class, appointment.getMid());
                     list.add(new AppointmentResult(appointment.getId(), nicknames2.get(0) + "@" + usernames2.get(0).replaceAll("(\\d{3})", "$1∗∗∗"), movienames.get(0), getTime(appointment.getInviteDate()), "1"));
                 }
                 resultList.setDataList(list);
@@ -160,7 +163,7 @@ public class AppointmentController {
                 for (Appointment appointment : appointments) {
                     List<String> nicknames = jdbcTemplate.queryForList("SELECT nickname FROM user WHERE id=?", String.class, appointment.getUid());
                     List<String> usernames = jdbcTemplate.queryForList("SELECT username name FROM user WHERE id=?", String.class, appointment.getUid());
-                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie WHERE id=?", String.class, appointment.getMid());
+                    List<String> movienames = jdbcTemplate.queryForList("SELECT title FROM movie_all WHERE id=?", String.class, appointment.getMid());
                     list.add(new AppointmentResult(appointment.getId(), nicknames.get(0) + "@" + usernames.get(0), movienames.get(0), getTime(appointment.getInviteDate()), "0"));
                 }
                 resultList.setDataList(list);
@@ -168,7 +171,9 @@ public class AppointmentController {
                 resultList.setCode(0);
             }
         }
-        resultList.setCode(-1);
+        else {
+            resultList.setCode(-1);
+        }
         return resultList;
     }
 

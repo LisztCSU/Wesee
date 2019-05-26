@@ -39,7 +39,7 @@ public class SmsController {
                 session.setMaxInactiveInterval(15 * 60);
                 session.setAttribute("vcode", vcode);
                 session.setAttribute("mobile",mobile);
-               // SmsSDK.SendSms(mobile,vcode);
+                SmsSDK.SendSms(mobile,vcode);
             }
         } else {
             result.setCode(0);
@@ -64,7 +64,7 @@ public class SmsController {
                         String vcode = RandomString.randomString(6);
                         System.out.println("nmsl2:" + vcode);
                         session.setAttribute("vcode", vcode);
-                        // SmsSDK.SendSms(mobile,vcode);
+                         SmsSDK.SendSms(mobile,vcode);
                     } else {
                         result.setCode(2);
                     }
@@ -97,7 +97,7 @@ public class SmsController {
                     System.out.println("nmsl:" + vcode);
                     session.setAttribute("mobile", mobile);
                     session.setAttribute("vcode", vcode);
-                    // SmsSDK.SendSms(mobile,vcode);
+                    SmsSDK.SendSms(mobile,vcode);
                 }
             } else {
                 result.setCode(0);

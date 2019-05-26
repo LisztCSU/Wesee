@@ -62,8 +62,10 @@ public class AdminController {
 
     public void addMovie(Movie movie) {
         String sql = "insert into movie ( id, title, score,star,  duration, votecount, region, director,actors, imgUrl) value (?,?,?,?,?,?,?,?,?,?)";
+        String sql2 = "insert ignore  into movie_all ( id, title, score,star,  duration, votecount, region, director,actors, imgUrl) value (?,?,?,?,?,?,?,?,?,?)";
         Object args[] = {movie.getId(), movie.getTitle(), movie.getScore(), star(movie.getStar()), movie.getDuration(), movie.getVotecount(), movie.getRegion(), movie.getDirector(), movie.getActors(), movie.getImgUrl()};
         jdbcTemplate.update(sql, args);
+        jdbcTemplate.update(sql2, args);
     }
     public String star(String s){
         if (s.equals("00"))

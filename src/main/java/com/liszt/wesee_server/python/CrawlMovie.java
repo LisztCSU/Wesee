@@ -43,8 +43,10 @@ public class CrawlMovie{
 
     public void addMovie(Movie movie) {
         String sql = "insert into movie ( id, title, score,star,  duration, votecount, region, director,actors, imgUrl) value (?,?,?,?,?,?,?,?,?,?)";
+        String sql2 = "insert ignore  into movie_all ( id, title, score,star,  duration, votecount, region, director,actors, imgUrl) value (?,?,?,?,?,?,?,?,?,?)";
         Object args[] = {movie.getId(), movie.getTitle(), movie.getScore(), star(movie.getStar()), movie.getDuration(), movie.getVotecount(), movie.getRegion(), movie.getDirector(), movie.getActors(), movie.getImgUrl()};
         jdbcTemplate.update(sql, args);
+        jdbcTemplate.update(sql2, args);
     }
     private String star(String s){
         if (s.equals("00"))
@@ -73,7 +75,7 @@ public class CrawlMovie{
     }
     @Scheduled(fixedDelay = 1000*3600*24)
     private void configureTasks() {
-       // if(crawlMovie().equals("success"))
+       //if(crawlMovie().equals("success"))
         System.err.println("更新电影列表成功");
     }
 }
